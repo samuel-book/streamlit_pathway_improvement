@@ -178,12 +178,18 @@ def main():
     df['Rank_(base_percent_thrombolysis_mean)'] = sorted_rank_col
 
     # Percentage thrombolysis use:
+    custom_data = np.stack((
+        df['stroke_team'][df['scenario'] == 'base'],
+        df['stroke_team'][df['scenario'] == 'base']
+        ), axis=-1)
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
         x=df['Rank_(base_percent_thrombolysis_mean)'][df['scenario'] == 'base'],
         y=df['Percent_Thrombolysis_(mean)'][df['scenario'] == 'base'],
-        name='base'
+        name='base',
+        marker=dict(color='DarkGrey'),  #'rgba(0,0,0,0.5)'),
+        customdata=custom_data
     ))
 
     if scenario != 'base':
@@ -196,12 +202,23 @@ def main():
         fig.add_trace(go.Bar(
             x=df['Rank_(base_percent_thrombolysis_mean)'][df['scenario'] == scenario],
             y=y_diffs,
-            name=f'difference due to<br>{leg_str}'
+            name=f'difference due to<br>{leg_str}',
+            marker=dict(color='rgba(255,0,0,0.3)'),
+            customdata=custom_data
         ))
 
 
     # Change the bar mode
     fig.update_layout(barmode='stack')
+    # Change the hover format
+    fig.update_layout(hovermode='x')
+    # Update hover label message:
+    fig.update_traces(hovertemplate=(
+        '%{customdata[0]}' +
+        '<br>' +
+        '%{y:.3f}' +
+        '<extra></extra>'
+    ))
 
     fig.update_xaxes(title=f'Rank sorted by {scenario_for_rank}')
     fig.update_yaxes(title='Percent Thrombolysis (mean)')
