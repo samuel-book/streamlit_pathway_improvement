@@ -57,17 +57,13 @@ def main():
     # ########## SETUP ##########
     # ###########################
 
-    df, stroke_teams_list, scenarios = utilities_pathway.inputs.\
-        import_stroke_data()
+    stroke_teams_list, scenarios = utilities_pathway.inputs.\
+        import_lists_from_data()
 
     # User inputs:
     with tabs_results[0]:
         scenario, scenario_for_rank = utilities_pathway.inputs.\
             inputs_for_bar_chart(scenarios)
-
-    # Sort the data according to this input:
-    df = utilities_pathway.inputs.add_sorted_rank_column_to_df(
-        df, scenario_for_rank, len(stroke_teams_list), len(scenarios))
 
     with container_highlighted_input:
         # Receive the user inputs now and show this container now:
@@ -80,9 +76,25 @@ def main():
         highlighted_teams_input = utilities_pathway.inputs.\
             highlighted_teams(stroke_teams_list)
 
+
+    # #######################################
+    # ########## MAIN CALCULATIONS ##########
+    # #######################################
+
+    df = utilities_pathway.inputs.\
+        import_stroke_data(
+            stroke_teams_list, scenarios, highlighted_teams_input
+            )
+
+    # Sort the data according to this input:
+    df = utilities_pathway.inputs.add_sorted_rank_column_to_df(
+        df, scenario_for_rank, len(stroke_teams_list), len(scenarios))
+
+
     # Find colour lists for plotting (saved to session state):
-    remove_old_colours_for_highlights(highlighted_teams_input)#hb_teams_input)
-    choose_colours_for_highlights(highlighted_teams_input)#hb_teams_input)
+    hb_teams_input = st.session_state['hb_teams_input']
+    remove_old_colours_for_highlights(hb_teams_input)
+    choose_colours_for_highlights(hb_teams_input)
 
     highlighted_colours = st.session_state['highlighted_teams_colours']
 

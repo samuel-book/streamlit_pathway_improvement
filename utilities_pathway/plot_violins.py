@@ -79,13 +79,16 @@ def plot_violins(df, scenarios, highlighted_teams_input=[], highlighted_colours=
         # Add scatter markers for highlighted teams
         showlegend_scatter = False if x > 0 else True
         for t, team in enumerate(highlighted_teams_input):
+            # Find HB name for this team:
+            hb_team = df_scenario['HB_team'][df_scenario['stroke_team'] == team].values[0]
+
             y_team = df_scenario['Percent_Thrombolysis_(mean)'][df_scenario['stroke_team'] == team].values
             fig.add_trace(go.Scatter(
                 y=y_team,
                 x=[x+x_offsets_scatter[t]],
-                name=team,
+                name=hb_team,
                 mode='markers',
-                marker=dict(color=highlighted_colours[team],
+                marker=dict(color=highlighted_colours[hb_team],
                             line=dict(color='black', width=1.0)),
                 showlegend=showlegend_scatter
             ))
