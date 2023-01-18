@@ -10,7 +10,8 @@ try:
 except FileNotFoundError:
     dir = 'streamlit_pathway_improvement/'
 
-from utilities_pathway.fixed_params import plain_str, bench_str
+from utilities_pathway.fixed_params import \
+    plain_str, bench_str, scenarios, scenarios_dict
 
 
 def write_text_from_file(filename, head_lines_to_skip=0):
@@ -48,19 +49,7 @@ def import_lists_from_data():
     #     df['scenario'].str.contains('same_patient_characteristics') == False
     #     ]
 
-    # The final data contains these scenarios:
-    scenarios = [
-        'base',
-        'speed',
-        'onset',
-        'benchmark',
-        'speed_onset',
-        'speed_benchmark',
-        'onset_benchmark',
-        'speed_onset_benchmark',
-        # 'same_patient_characteristics'
-    ]
-    return stroke_teams_list, scenarios
+    return stroke_teams_list  #, scenarios
 
 
 def import_stroke_data(stroke_teams_list, scenarios, highlighted_teams_input):
@@ -181,9 +170,11 @@ def import_stroke_data(stroke_teams_list, scenarios, highlighted_teams_input):
 
 def add_sorted_rank_column_to_df(df, scenario_for_rank, n_teams, n_scenarios):
     col_to_sort = 'Percent_Thrombolysis_(mean)'
+    scenario_for_name = scenario_for_rank
     if '!' in scenario_for_rank:
-        scenario_for_rank = scenario_for_rank.split('!')[0]
+        scenario_for_rank = '!'.join(scenario_for_rank.split('!')[:-1])
         col_to_sort += '_diff'
+
     # Add sorted base rank:
     # Make a new "Index" column that ranks the teams alphabetically
     # (or default input order). Each team gets the same index value
@@ -206,16 +197,18 @@ def add_sorted_rank_column_to_df(df, scenario_for_rank, n_teams, n_scenarios):
     sorted_rank_col = np.tile(df_sorted_rank_index, n_scenarios)
     # Add this column to the main data frame:
 
-    df['Sorted rank'] = sorted_rank_col
+    df['Sorted_rank!' + scenario_for_name] = sorted_rank_col
     return df
 
 
-def inputs_for_bar_chart(scenarios):
+def inputs_for_bar_chart():
+
     scenario = st.radio(
         'Show difference due to:',
-        options=scenarios,
+        options=scenarios_dict.keys(),
         horizontal=True
         )
+    scenario = scenarios_dict[scenario]
 
     scenario_for_rank = st.radio(
         'Sort values by this:',
