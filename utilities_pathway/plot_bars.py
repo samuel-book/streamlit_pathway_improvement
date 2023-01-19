@@ -124,6 +124,8 @@ def plot_bars_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all'):
         legend_title='Highlighted team'
     )
 
+    # Format legend so newest teams appear at bottom:
+    fig.update_layout(legend=dict(traceorder='normal'))
 
     fig.update_yaxes(range=[0, max(df_all['Percent_Thrombolysis_(mean)'])*1.05])
     fig.update_xaxes(range=[
@@ -138,19 +140,20 @@ def plot_bars_for_single_team(df, team):
     # For y-limits:
     # Find max y values across all teams.
     max_percent_thrombolysis_mean = max(df['Percent_Thrombolysis_(mean)'])
-    min_percent_thrombolysis_mean = 0  # min(df['Percent_Thrombolysis_(mean)'])
+    min_percent_thrombolysis_mean = 0
     max_additional_good_mean = max(df['Additional_good_outcomes_per_1000_patients_(mean)'])
-    min_additional_good_mean = 0  # min(df['Additional_good_outcomes_per_1000_patients_(mean)'])
-
-
-    # max_percent_thrombolysis_mean_diff = max(df['Percent_Thrombolysis_(mean)_diff'].values)
-    # min_percent_thrombolysis_mean_diff = min(df['Percent_Thrombolysis_(mean)_diff'].values)
-    # max_additional_good_mean_diff = max(df['Additional_good_outcomes_per_1000_patients_(mean)_diff'].values)
-    # min_additional_good_mean_diff = min(df['Additional_good_outcomes_per_1000_patients_(mean)_diff'].values)
+    min_additional_good_mean = 0
 
     scenarios_str_list = []
     for s in scenarios:
-        scenarios_str_list.append(scenarios_dict2[s])
+        s_label = scenarios_dict2[s]
+        if '+' in s_label:
+            s_label = '(' + s_label + ')'
+        if len(s_label) > 20:
+            # Onset + Speed + Benchmark is too long, so move the
+            # "+ Benchmark" onto its own line.
+            s_label = ' +<br> Benchmark'.join(s_label.split(' + Benchmark'))
+        scenarios_str_list.append(s_label)
 
     # Pick out just the data for the chosen team:
     df_here = df[df['stroke_team'] == team]
@@ -159,24 +162,35 @@ def plot_bars_for_single_team(df, team):
     base_additional_good_here = df_here['Additional_good_outcomes_per_1000_patients_(mean)'][df_here['scenario'] == 'base'].values[0]
 
 
-    # cols_bar = st.columns(2)
-    # with cols_bar[0]:
-
     subplot_titles = [
-        'Percent Thrombolysis',
-        'Additional good outcomes<br>per 1000 patients'
+        'Thrombolysis use (%)',
+        'Additional good outcomes<br>per 1000 admissions'
     ]
     fig = make_subplots(rows=1, cols=2, subplot_titles=subplot_titles)
 
-    fig.update_layout(title='<b>Team ' + team)
-    # Percentage thrombolysis use:
-    # fig = go.Figure()
+    fig.update_layout(title='<b>Team ' + team)  # <b> for bold
+
+    # --- Percentage thrombolysis use ---
+    diff_vals_mean = np.round(df_here['Percent_Thrombolysis_(mean)_diff'].values, 1)[1:]
+    sign_list_mean = np.full(diff_vals_mean.shape, '+')
+    sign_list_mean[np.where(diff_vals_mean < 0)[0]] = '-'
+    bar_text_mean = []
+    for i, diff in enumerate(diff_vals_mean):
+        diff_str = ''.join([sign_list_mean[i], str(diff)])
+        bar_text_mean.append(diff_str)
+    bar_text_mean = [np.round(base_percent_thromb_here, 1).astype(str)] + bar_text_mean
 
     custom_data_mean = np.stack((
         # Difference between this scenario and base:
         np.round(df_here['Percent_Thrombolysis_(mean)_diff'], 1),
         # Base value:
-        np.full(df_here['scenario'].values.shape, df_here['Percent_Thrombolysis_(mean)'][df_here['scenario'] == 'base'])
+        np.full(
+            df_here['scenario'].values.shape, 
+            df_here['Percent_Thrombolysis_(mean)']\
+                [df_here['scenario'] == 'base']
+            ),
+        # Text for top of bars:
+        bar_text_mean
     ), axis=-1)
 
     fig.add_trace(go.Bar(
@@ -188,40 +202,53 @@ def plot_bars_for_single_team(df, team):
     ),
         row=1, col=1)
 
-    fig.update_yaxes(title='Percent Thrombolysis', row=1, col=1)
+    fig.update_yaxes(title='Thrombolysis use (%)', row=1, col=1)
 
     fig.update_yaxes(range=[
-        min_percent_thrombolysis_mean*1.05,
-        max_percent_thrombolysis_mean*1.05
+        min_percent_thrombolysis_mean*1.1,
+        max_percent_thrombolysis_mean*1.1
         ],
         row=1, col=1)
 
 
     # --- Additional good outcomes ---
-    
+    diff_vals_add = np.round(df_here['Additional_good_outcomes_per_1000_patients_(mean)_diff'].values, 1)[1:]
+    sign_list_add = np.full(diff_vals_add.shape, '+')
+    sign_list_add[np.where(diff_vals_add < 0)[0]] = '-'
+    bar_text_add = []
+    for i, diff in enumerate(diff_vals_add):
+        diff_str = ''.join([sign_list_add[i], str(diff)])
+        bar_text_add.append(diff_str)
+    bar_text_add = [np.round(base_additional_good_here, 1).astype(str)] + bar_text_add
+
     custom_data_add = np.stack((
         # Difference between this scenario and base:
         np.round(df_here['Additional_good_outcomes_per_1000_patients_(mean)_diff'], 1),
         # Base value:
-        np.full(df_here['scenario'].values.shape, df_here['Additional_good_outcomes_per_1000_patients_(mean)'][df_here['scenario'] == 'base'])
+        np.full(
+            df_here['scenario'].values.shape,
+            df_here['Additional_good_outcomes_per_1000_patients_(mean)']\
+                [df_here['scenario'] == 'base']
+            ),
+        # Text for top of bars:
+        bar_text_add
     ), axis=-1)
 
     fig.add_trace(go.Bar(
         x=df_here['scenario'],
         # y=df_here['Additional_good_outcomes_per_1000_patients_(mean)'],
         y=df_here['Additional_good_outcomes_per_1000_patients_(mean)'],
-        marker=dict(color='red'),
+        # marker=dict(color='red'),
         customdata=custom_data_add,
         showlegend=False
     ), row=1, col=2)
 
+    fig.update_yaxes(title='Additional good outcomes', row=1, col=2)
 
-    fig.update_yaxes(title='Additional good outcomes',
-        row=1, col=2)
-
+    # Update y-axis limits with breathing room for labels above bars.
     fig.update_yaxes(range=[
-        min_additional_good_mean*1.05,
-        max_additional_good_mean*1.05
+        min_additional_good_mean*1.1,
+        max_additional_good_mean*1.1
         ],
         row=1, col=2)
 
@@ -229,12 +256,15 @@ def plot_bars_for_single_team(df, team):
     cols = [1, 2]
     base_values = [base_percent_thromb_here, base_additional_good_here]
     for c, col in enumerate(cols):
+        # Add some extra '%' for the first subplot but not the second.
+        perc_str = '%' if col == 1 else ''
         # Update x-axis title and tick labels:
         fig.update_xaxes(title='Scenario', row=1, col=col)
         fig.update_xaxes(
             tickmode='array',
             tickvals = np.arange(len(scenarios_str_list)),
             ticktext=scenarios_str_list,
+            tickangle=90,
             row=1, col=col
         )
         # Draw a horizontal line at the base value:
@@ -244,15 +274,14 @@ def plot_bars_for_single_team(df, team):
             layer='above',  # Puts it above the bars
             row=1, col=col)
         # Write the size of each bar within the bar:
-        fig.update_traces(text='%{customdata[0]}', row=1, col=col)
+        fig.update_traces(text='%{customdata[2]}', row=1, col=col)
         # Set text position to "auto" so it sits inside the bar if there's
         # room, and outside the bar if there's not enough room.
         # For everything inside and auto-size the text, use "inside".
         fig.update_traces(textposition='outside', row=1, col=col)
         # Explicitly ask for + and - signs:
-        fig.update_traces(texttemplate='%{customdata[0]:+}%', row=1, col=col)
+        fig.update_traces(texttemplate='%{customdata[2]}' + perc_str, row=1, col=col)
         # Update hover template:
-        perc_str = '%' if col == 1 else ''
         fig.update_traces(hovertemplate=(
             # 'Value for %{x}: %{y}%' +
             'Value: %{y}' + perc_str +
@@ -263,6 +292,5 @@ def plot_bars_for_single_team(df, team):
         ),
             row=1, col=col)
 
-
-
+    # Write to streamlit:
     st.plotly_chart(fig, use_container_width=True)

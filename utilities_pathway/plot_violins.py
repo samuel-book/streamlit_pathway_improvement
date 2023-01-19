@@ -44,6 +44,10 @@ def find_offsets_for_scatter(n_points, y_gap=0.05, y_max=0.2):
 def plot_violins(df, scenarios, highlighted_teams_input=[], highlighted_colours={}, n_teams='all'):
     fig = go.Figure()
 
+    # If there's only one scenario, remove repeats from the list:
+    if len(list(set(scenarios))) == 1:
+        scenarios = [scenarios[0]]
+
     x_offsets_scatter = find_offsets_for_scatter(len(highlighted_teams_input))
 
     # med_vals = df['Percent_Thrombolysis_(mean%)'].values
