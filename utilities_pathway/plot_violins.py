@@ -86,9 +86,9 @@ def plot_violins(df, scenarios, highlighted_teams_input=[], highlighted_colours=
         # Add scatter markers for highlighted teams
         showlegend_scatter = False if x > 0 else True
         if scenario == 'base':
-            prob_label = 'Base probability'
+            prob_label = 'Base'
         else:
-            prob_label = scenario_str + ' probability'
+            prob_label = scenario_str  # + ' '
         for t, team in enumerate(highlighted_teams_input):
             # Find HB name for this team:
             hb_team = df_scenario['HB_team'][df_scenario['stroke_team'] == team].values[0]
@@ -115,7 +115,7 @@ def plot_violins(df, scenarios, highlighted_teams_input=[], highlighted_colours=
 
     # Update the hover text for the scatter points:
     ht =(
-        'Stroke team: %{customdata[0]}' +
+        '%{customdata[0]}' +
         '<br>' +
         # 'Effect of %{y}: %{customdata[1]:>+.2f}%' +
         # 'Effect of %{customdata[4]}: %{customdata[1]:>+.2f}%' +
