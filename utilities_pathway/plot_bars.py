@@ -96,7 +96,7 @@ def plot_bars_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all'):
             '<br>' +
             'Base probability: %{y:.1f}%' +
             '<br>' +
-            f'Effect of {scenario}: ' + '%{customdata[1]:+}%' +
+            f'Effect of {scenario_str}: ' + '%{customdata[1]:+}%' +
             '<br>' +
             f'Final probability: ' + '%{customdata[2]:.1f}%' +
             '<br>' +
@@ -272,13 +272,13 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all')
             '<br>' +
             'Base probability: %{customdata[2]:.1f}%' +
             '<br>' +
-            f'Effect of {scenario}: ' + '%{customdata[1]:+}%' +
+            f'Effect of {scenario_str}: ' + '%{customdata[1]:+}%' +
             '<br>' +
             f'Final probability: ' + '%{customdata[3]:.1f}%' +
             '<br>' +
             'Base rank: %{customdata[4]} of ' + f'{n_teams} teams'
             '<br>' +
-            'Final rank: %{customdata[5]} of ' + f'{n_teams} teams'
+            f'{scenario_str} rank:' + ' %{customdata[5]} of ' + f'{n_teams} teams'
             '<extra></extra>'
         )
 
@@ -447,13 +447,13 @@ def plot_scatter_base_vs_scenario(df_all, scenario, scenario_for_rank, n_teams='
             '<br>' +
             'Base probability: %{customdata[2]:.1f}%' +
             '<br>' +
-            f'Effect of {scenario}: ' + '%{customdata[1]:+}%' +
+            f'Effect of {scenario_str}: ' + '%{customdata[1]:+}%' +
             '<br>' +
             f'Final probability: ' + '%{customdata[3]:.1f}%' +
             '<br>' +
             'Base rank: %{customdata[4]} of ' + f'{n_teams} teams' +
             '<br>' +
-            'Final rank: %{customdata[5]} of ' + f'{n_teams} teams' +
+            f'{scenario_str} rank:' + ' %{customdata[5]} of ' + f'{n_teams} teams' +
             '<extra></extra>'
         )
 
@@ -628,13 +628,13 @@ def plot_bar_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='a
             '<br>' +
             'Base probability: %{customdata[2]:.1f}%' +
             '<br>' +
-            f'Effect of {scenario}: ' + '%{customdata[1]:+}%' +
+            f'Effect of {scenario_str}: ' + '%{customdata[1]:+}%' +
             '<br>' +
             f'Final probability: ' + '%{customdata[3]:.1f}%' +
             '<br>' +
             'Base rank: %{customdata[4]} of ' + f'{n_teams} teams'
             '<br>' +
-            'Final rank: %{customdata[5]} of ' + f'{n_teams} teams'
+            f'{scenario_str} rank:' + ' %{customdata[5]} of ' + f'{n_teams} teams'
             '<extra></extra>'
         )
 
