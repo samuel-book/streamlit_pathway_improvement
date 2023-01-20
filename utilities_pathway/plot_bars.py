@@ -191,8 +191,8 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all')
             symbols = ['circle'] * len(x_for_scatter)
             # Scenario symbols: 
             symbols_scen = np.full(len(symbols), 'circle', dtype='U20')
-            symbols_scen[np.where(y_diffs >= 0)] = 'triangle-up'
-            symbols_scen[np.where(y_diffs < 0)] = 'triangle-down'
+            symbols_scen[np.where(y_diffs >= 0)] = 'arrow-up'
+            symbols_scen[np.where(y_diffs < 0)] = 'arrow-down'
             symbols = np.array([symbols, symbols_scen])
 
             x_for_scatter = np.array([x_for_scatter, x_for_scatter])
@@ -233,7 +233,7 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all')
                     name=name,
                     mode=mode,
                     # width=1,
-                    marker=dict(color=colour, symbol=symbols[:, t], size=[4, 10]),
+                    marker=dict(color=colour, symbol=symbols[:, t], size=[4, 8]),
                         # line=dict(color=colour)),  #'rgba(0,0,0,0.5)'),
                     customdata=custom_data_here,
                     showlegend=showlegend
@@ -336,6 +336,10 @@ def plot_scatter_base_vs_scenario(df_all, scenario, scenario_for_rank, n_teams='
             # Final prob:
             # (round this now so we can use the +/- sign format later)
             df['Percent_Thrombolysis_(mean)'][df['scenario'] == scenario],
+            # Base rank:
+            df['Sorted_rank!base'][df['scenario'] == 'base'],
+            # Final rank:
+            df['Sorted_rank!'+scenario][df['scenario'] == 'base']
             ), axis=-1)
 
 
@@ -360,8 +364,8 @@ def plot_scatter_base_vs_scenario(df_all, scenario, scenario_for_rank, n_teams='
             symbols = ['circle'] * len(x_for_scatter)
             # Scenario symbols: 
             symbols_scen = np.full(len(symbols), 'circle', dtype='U20')
-            symbols_scen[np.where(y_diffs >= 0)] = 'triangle-up'
-            symbols_scen[np.where(y_diffs < 0)] = 'triangle-down'
+            symbols_scen[np.where(y_diffs >= 0)] = 'arrow-up'
+            symbols_scen[np.where(y_diffs < 0)] = 'arrow-down'
             symbols = np.array([symbols, symbols_scen])
 
             x_for_scatter = np.array([x_for_scatter, x_for_scatter])
@@ -402,7 +406,7 @@ def plot_scatter_base_vs_scenario(df_all, scenario, scenario_for_rank, n_teams='
                     name=name,
                     mode=mode,
                     # width=1,
-                    marker=dict(color=colour, symbol=symbols[:, t], size=[4, 10]),
+                    marker=dict(color=colour, symbol=symbols[:, t], size=[4, 8]),
                         # line=dict(color=colour)),  #'rgba(0,0,0,0.5)'),
                     customdata=custom_data_here,
                     showlegend=showlegend
@@ -427,7 +431,7 @@ def plot_scatter_base_vs_scenario(df_all, scenario, scenario_for_rank, n_teams='
             '<br>' +
             'Base probability: %{customdata[2]:.1f}%' +
             '<br>' +
-            'Rank: %{x} of ' + f'{n_teams} teams'
+            'Base rank: %{customdata[4]} of ' + f'{n_teams} teams'
             '<extra></extra>'
         )
     else:
@@ -441,7 +445,9 @@ def plot_scatter_base_vs_scenario(df_all, scenario, scenario_for_rank, n_teams='
             '<br>' +
             f'Final probability: ' + '%{customdata[3]:.1f}%' +
             '<br>' +
-            'Rank: %{x} of ' + f'{n_teams} teams'
+            'Base rank: %{customdata[4]} of ' + f'{n_teams} teams' +
+            '<br>' +
+            'Final rank: %{customdata[5]} of ' + f'{n_teams} teams' +
             '<extra></extra>'
         )
 
@@ -546,8 +552,8 @@ def plot_bar_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='a
             symbols = ['line-ew-open'] * len(x_for_scatter)
             # Scenario symbols: 
             symbols_scen = np.full(len(symbols), 'circle', dtype='U20')
-            symbols_scen[np.where(y_diffs >= 0)] = 'triangle-up'
-            symbols_scen[np.where(y_diffs < 0)] = 'triangle-down'
+            symbols_scen[np.where(y_diffs >= 0)] = 'arrow-up'
+            symbols_scen[np.where(y_diffs < 0)] = 'arrow-down'
             symbols = np.array([symbols, symbols_scen])
 
             x_for_scatter = np.array([x_for_scatter, x_for_scatter])
@@ -559,19 +565,7 @@ def plot_bar_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='a
             leg_str = scenario_str.replace('+ ', '+<br>')
             leg_str_full = f'Difference due to<br>"{leg_str}"'
 
-
-        if scenario == 'base':
-            fig.add_trace(go.Scatter(
-                x=x_for_scatter,
-                y=y_for_scatter,
-                name=name,
-                mode=mode,
-                # width=1,
-                marker=dict(color=colour, symbol=symbols, size=size),
-                    # line=dict(color=colour)),  #'rgba(0,0,0,0.5)'),
-                customdata=custom_data
-            ))
-        else:
+        if scenario != 'base':
             for t, team in enumerate(range(x_for_scatter.shape[1])):
                 # showlegend = False if t > 0 else True
 
@@ -588,7 +582,7 @@ def plot_bar_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='a
                     name=name,
                     mode=mode,
                     # width=1,
-                    marker=dict(color=colour, symbol=symbols[:, t], size=[0, 10]),
+                    marker=dict(color=colour, symbol=symbols[:, t], size=[0, 8]),
                         # line=dict(color=colour, width=0.2)),  #'rgba(0,0,0,0.5)'),
                     line=dict(width=0.5),
                     customdata=custom_data_here,
