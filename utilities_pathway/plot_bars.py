@@ -167,6 +167,10 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all')
             # Final prob:
             # (round this now so we can use the +/- sign format later)
             df['Percent_Thrombolysis_(mean)'][df['scenario'] == scenario],
+            # Base rank:
+            df['Sorted_rank!base'][df['scenario'] == 'base'],
+            # Final rank:
+            df['Sorted_rank!'+scenario][df['scenario'] == 'base']
             ), axis=-1)
 
 
@@ -272,7 +276,9 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all')
             '<br>' +
             f'Final probability: ' + '%{customdata[3]:.1f}%' +
             '<br>' +
-            'Rank: %{x} of ' + f'{n_teams} teams'
+            'Base rank: %{customdata[4]} of ' + f'{n_teams} teams'
+            '<br>' +
+            'Final rank: %{customdata[5]} of ' + f'{n_teams} teams'
             '<extra></extra>'
         )
 
@@ -516,6 +522,10 @@ def plot_bar_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='a
             # Final prob:
             # (round this now so we can use the +/- sign format later)
             df['Percent_Thrombolysis_(mean)'][df['scenario'] == scenario],
+            # Base rank:
+            df['Sorted_rank!base'][df['scenario'] == 'base'],
+            # Final rank:
+            df['Sorted_rank!'+scenario][df['scenario'] == 'base']
             ), axis=-1)
 
         # Setup assuming scenario == 'base':
@@ -622,7 +632,9 @@ def plot_bar_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='a
             '<br>' +
             f'Final probability: ' + '%{customdata[3]:.1f}%' +
             '<br>' +
-            'Rank: %{x} of ' + f'{n_teams} teams'
+            'Base rank: %{customdata[4]} of ' + f'{n_teams} teams'
+            '<br>' +
+            'Final rank: %{customdata[5]} of ' + f'{n_teams} teams'
             '<extra></extra>'
         )
 
