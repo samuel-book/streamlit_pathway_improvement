@@ -6,7 +6,42 @@ from plotly.subplots import make_subplots
 from utilities_pathway.fixed_params import scenarios, scenarios_dict2
 
 
-def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all', y_str='Percent_Thrombolysis_(mean)'):
+def plot_two_scatter_sorted_rank(df, scenario, scenario_for_rank, y_strs, n_teams='all'):
+    cols = [1, 2]
+    showlegends = [True, False]
+
+    subplot_titles = [
+        'Thrombolysis use (%)',
+        'Additional good outcomes<br>per 1000 admissions'
+    ]
+    fig = make_subplots(rows=1, cols=2, subplot_titles=subplot_titles)
+    
+    for i in [0, 1]:
+        plot_scatter_sorted_rank(
+            df,
+            scenario,
+            scenario_for_rank,
+            n_teams,
+            y_str=y_strs[i],
+            col=cols[i],
+            row=1,
+            fig=fig,
+            showlegend_col=showlegends[i]
+            )
+
+    # To match histograms:
+    fig.update_xaxes(range=[0, 34], row=1, col=1)
+    fig.update_xaxes(range=[0, 34], row=1, col=2)
+
+
+    fig.update_layout(height=600)
+    st.plotly_chart(fig, use_container_width=True)
+        
+
+def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all', y_str='Percent_Thrombolysis_(mean)', col=None, row=None, fig=None, showlegend_col=False):
+    if fig is None:
+        fig = go.Figure()
+    
     if y_str == 'Percent_Thrombolysis_(mean)':
         y_label = 'Thrombolysis use (%)'
     else:
@@ -14,13 +49,13 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
 
     # Use this string for labels:
     scenario_str = scenarios_dict2[scenario]
+    scenario_for_rank_str = scenarios_dict2[scenario_for_rank.split('!')[0]]
     # List of all the separate traces:
     hb_teams_input = st.session_state['hb_teams_input']
     highlighted_colours = st.session_state['highlighted_teams_colours']
 
     # change_colour = 'rgba(255,255,255,0.8)'
 
-    fig = go.Figure()
     for n, name in enumerate(hb_teams_input):
         df = df_all[df_all['HB_team'] == name]
 
@@ -69,8 +104,8 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
             symbols = ['circle'] * len(x_for_scatter)
             # Scenario symbols: 
             symbols_scen = np.full(len(symbols), 'circle', dtype='U20')
-            symbols_scen[np.where(y_diffs >= 0)] = 'arrow-up'
-            symbols_scen[np.where(y_diffs < 0)] = 'arrow-down'
+            symbols_scen[np.where(y_diffs >= 0)] = 'arrow-right'
+            symbols_scen[np.where(y_diffs < 0)] = 'arrow-left'
             symbols = np.array([symbols, symbols_scen])
 
             x_for_scatter = np.array([x_for_scatter, x_for_scatter])
@@ -85,18 +120,22 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
 
         if scenario == 'base':
             fig.add_trace(go.Scatter(
-                x=x_for_scatter,
-                y=y_for_scatter,
+                y=x_for_scatter,
+                x=y_for_scatter,
                 name=name,
                 mode=mode,
                 # width=1,
                 marker=dict(color=colour, symbol=symbols, size=size),
                     # line=dict(color=colour)),  #'rgba(0,0,0,0.5)'),
-                customdata=custom_data
-            ))
+                customdata=custom_data,
+                showlegend=showlegend_col
+            ),
+                row=row, col=col
+            )
         else:
             for t, team in enumerate(range(x_for_scatter.shape[1])):
-                showlegend = False if t > 0 else True
+                showlegend = True if (t == 0 and showlegend_col is True) else False
+
 
                 # st.write(custom_data)
                 custom_data_here = custom_data[t, :]
@@ -106,8 +145,8 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
                 # st.text(custom_data_here[:, 0])
 
                 fig.add_trace(go.Scatter(
-                    x=x_for_scatter[:, t],
-                    y=y_for_scatter[:, t],
+                    y=x_for_scatter[:, t],
+                    x=y_for_scatter[:, t],
                     name=name,
                     mode=mode,
                     # width=1,
@@ -115,7 +154,8 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
                         # line=dict(color=colour)),  #'rgba(0,0,0,0.5)'),
                     customdata=custom_data_here,
                     showlegend=showlegend
-                ))
+                ),
+                    row=row, col=col)
 
 
 
@@ -136,7 +176,7 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
             '<br>' +
             'Base probability: %{customdata[2]:.1f}%' +
             '<br>' +
-            'Rank: %{x} of ' + f'{n_teams} teams'
+            'Rank: %{y} of ' + f'{n_teams} teams'
             '<extra></extra>'
         )
     else:
@@ -166,24 +206,63 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
         else (),
     )
 
-    fig.update_layout(
-        title=f'{scenario_str}',
-        xaxis_title=f'Rank sorted by {scenario_for_rank}',
-        yaxis_title=y_label,
-        legend_title='Highlighted team'
-    )
+    # fig.update_layout(
+    #     title=f'{scenario_str}',
+    #     yaxis_title=f'Rank sorted by {scenario_for_rank_str}',
+    #     xaxis_title=y_label,
+    #     legend_title='Highlighted team',
+    #     row=row, col=col
+    # )
+    fig.update_yaxes(title=f'Rank sorted by {scenario_for_rank_str}', row=row, col=col)
+    fig.update_xaxes(title=y_label, row=row, col=col)
+    # fig.update_layout(legend_title='Highlighted team')
 
     # Format legend so newest teams appear at bottom:
     fig.update_layout(legend=dict(traceorder='normal'))
+    # Set margins to the same as the histogram:
+    fig.update_layout(margin=dict(    
+            l=0,
+            r=0,
+            # b=0,
+            # t=40,
+            pad=0
+        ))
+    # Set legend location to the same as the histogram:
+    fig.update_layout(legend=dict(
+        # orientation='h', #'h',
+        yanchor='top',
+        y=1,
+        xanchor='right',
+        x=1.5
+    ))
 
-    fig.update_yaxes(range=[0, max(df_all[y_str])*1.05])
-    fig.update_xaxes(range=[
+
+    # fig.update_xaxes(range=[0, max(df_all[y_str])*1.05], row=row, col=col)
+    fig.update_yaxes(range=[
         min(df_all['Sorted_rank!'+scenario_for_rank])-1,
         max(df_all['Sorted_rank!'+scenario_for_rank])+1
-        ])
+        ][::-1], row=row, col=col)
 
-    st.plotly_chart(fig, use_container_width=True)
+    # This simulates grid lines but makes the plot slow to display:
+    # # Plot vertical lines:
+    # for x in np.arange(0, 35):
+    #     fig.add_vline(x=x, line=dict(color='grey'), opacity=0.1, layer='below')
 
+    # # 23rd Jan 2023 - minor ticks currently don't show up in Streamlit
+    # fig.update_xaxes(minor=dict(
+    #     # ticklen=6,
+    #     # tickcolor="black",
+    #     # tickmode='array',
+    #     # tickvals=np.arange(0, 35),
+    #     # ticktext=['' for t in np.arange(0, 35)],
+    #     ticks='outside',
+    #     tick0=0,
+    #     dtick=1,
+    #     showgrid=True,
+    #     gridcolor='magenta',
+    #     gridwidth=1
+    #     ), col=col, row=row)
+    # fig.update_yaxes(minor_ticks="inside")
 
 def plot_bars_for_single_team(df, team):
 

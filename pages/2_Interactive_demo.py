@@ -114,7 +114,6 @@ def main():
 
     highlighted_colours = st.session_state['highlighted_teams_colours']
 
-
     # ###########################
     # ######### RESULTS #########
     # ###########################
@@ -129,33 +128,25 @@ def main():
             len(stroke_teams_list)
         )
 
-
-    y_strs = [
-        'Percent_Thrombolysis_(mean)',
-        'Additional_good_outcomes_per_1000_patients_(mean)'
-        ]
-    for y_str in y_strs:
-        bars = True
-        if bars is True:
-            with container_bar:
-                st.markdown('## ' + y_str)
-
-                st.write('Ranked scatter:')
-                # Make a scatter chart of the mean values:
-                utilities_pathway.plot_bars.plot_scatter_sorted_rank(
-                    df,
-                    scenario,
-                    scenario_for_rank,
-                    len(stroke_teams_list),
-                    y_str=y_str
-                    )
-
+    with container_bar:
+        st.write('Ranked scatter:')
+        y_strs = [
+            'Percent_Thrombolysis_(mean)',
+            'Additional_good_outcomes_per_1000_patients_(mean)'
+            ]
+        # Make a scatter chart of the mean values:
+        utilities_pathway.plot_bars.plot_two_scatter_sorted_rank(
+            df,
+            scenario,
+            scenario_for_rank,
+            y_strs=y_strs,
+            n_teams=len(stroke_teams_list)
+            )
 
     with tabs_results[1]:
         # Bar chart for individual team:
         for team in highlighted_teams_input:
             utilities_pathway.plot_bars.plot_bars_for_single_team(df, team)
-
 
     # ----- The end! -----
 
