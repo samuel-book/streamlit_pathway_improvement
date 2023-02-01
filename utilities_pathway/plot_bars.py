@@ -36,7 +36,40 @@ def plot_two_scatter_sorted_rank(df, scenario, scenario_for_rank, y_strs, n_team
 
 
     fig.update_layout(height=600)
-    st.plotly_chart(fig, use_container_width=True)
+    
+    # Disable zoom and pan:
+    fig.update_layout(
+        # Left subplot:
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True),
+        # Right subplot:
+        xaxis2=dict(fixedrange=True),
+        yaxis2=dict(fixedrange=True)
+        )
+
+    # Turn off legend click events
+    # (default is click on legend item, remove that item from the plot)
+    fig.update_layout(legend_itemclick=False)
+    # Only change the specific item being clicked on, not the whole
+    # legend group:
+    # # fig.update_layout(legend=dict(groupclick="toggleitem"))
+
+    plotly_config = {
+        # Mode bar always visible:
+        # 'displayModeBar': True,
+        # Plotly logo in the mode bar:
+        'displaylogo': False,
+        # Remove the following from the mode bar:
+        'modeBarButtonsToRemove': [
+            'zoom', 'pan', 'select', 'zoomIn', 'zoomOut', 'autoScale',
+            'lasso2d'
+            ],
+        # Options when the image is saved:
+        'toImageButtonOptions': {'height': None, 'width': None},
+        }
+
+    # Write to streamlit:
+    st.plotly_chart(fig, use_container_width=True, config=plotly_config)
         
 
 def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all', y_str='Percent_Thrombolysis_(mean)', col=None, row=None, fig=None, showlegend_col=False):
@@ -332,7 +365,7 @@ def plot_bars_for_single_team(df, team):
     sign_list_mean[np.where(diff_vals_mean < 0)[0]] = '-'
     bar_text_mean = []
     for i, diff in enumerate(diff_vals_mean):
-        diff_str = ''.join([sign_list_mean[i], str(diff)])
+        diff_str = ''.join([sign_list_mean[i], str(abs(diff))])
         bar_text_mean.append(diff_str)
     bar_text_mean = [np.round(base_percent_thromb_here, 1).astype(str)] + bar_text_mean
 
@@ -447,5 +480,37 @@ def plot_bars_for_single_team(df, team):
         ),
             row=1, col=col)
 
+
+    # Disable zoom and pan:
+    fig.update_layout(
+        # Left subplot:
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True),
+        # Right subplot:
+        xaxis2=dict(fixedrange=True),
+        yaxis2=dict(fixedrange=True)
+        )
+
+    # Turn off legend click events
+    # (default is click on legend item, remove that item from the plot)
+    fig.update_layout(legend_itemclick=False)
+    # Only change the specific item being clicked on, not the whole
+    # legend group:
+    # # fig.update_layout(legend=dict(groupclick="toggleitem"))
+
+    plotly_config = {
+        # Mode bar always visible:
+        # 'displayModeBar': True,
+        # Plotly logo in the mode bar:
+        'displaylogo': False,
+        # Remove the following from the mode bar:
+        'modeBarButtonsToRemove': [
+            'zoom', 'pan', 'select', 'zoomIn', 'zoomOut', 'autoScale',
+            'lasso2d'
+            ],
+        # Options when the image is saved:
+        'toImageButtonOptions': {'height': None, 'width': None},
+        }
+
     # Write to streamlit:
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config=plotly_config)

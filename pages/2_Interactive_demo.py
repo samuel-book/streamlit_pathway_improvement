@@ -60,11 +60,8 @@ def main():
     tabs_results = st.tabs(['All teams', 'Highlighted teams'])
     with tabs_results[0]:
         container_hist = st.container()
-        container_violin = st.container()
         container_sort_input = st.container()
         container_bar = st.container()
-
-
 
 
     # ###########################
