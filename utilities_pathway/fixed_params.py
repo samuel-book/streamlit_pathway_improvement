@@ -18,7 +18,7 @@ bench_str = 'Benchmark team: \U00002605'
 
 # Default highlighted team:
 default_highlighted_team = '42'  # 'LECHF1024T'
-display_name_of_default_highlighted_team = '"St Elsewhere"'
+display_name_of_default_highlighted_team = str(default_highlighted_team) # '"St Elsewhere"'
 
 scenarios_dict = {
     'Base': 'base',

@@ -39,17 +39,19 @@ def plot_scatter_sorted_rank(df_all, scenario, scenario_for_rank, n_teams='all',
             display_name = display_name_of_default_highlighted_team
         else:
             display_name = name
+        if 'enchmark' not in display_name:
+            display_name = f'Team {display_name}'
 
         df = df_all[df_all['HB_team'] == name]
 
         # if default_highlighted_team in name:
         if default_highlighted_team == name.split(' \U00002605')[0]:
             name_arr = (
-                [display_name_of_default_highlighted_team] *
+                [f'Team {display_name_of_default_highlighted_team}'] *
                 len(df['stroke_team'][df['scenario'] == 'base'])
             )
         else:
-            name_arr = df['stroke_team'][df['scenario'] == 'base']
+            name_arr = 'Team ' + df['stroke_team'][df['scenario'] == 'base']
 
         colour = highlighted_colours[name]
 

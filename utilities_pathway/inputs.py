@@ -5,7 +5,7 @@ import numpy as np
 
 # For importing data:
 try:
-    stroke_teams_test = pd.read_csv('./data_pathway/scenario_results_100trials.csv')
+    stroke_teams_test = pd.read_csv('./data_pathway/scenario_results.csv')
     dir = './'
 except FileNotFoundError:
     dir = 'streamlit_pathway_improvement/'
@@ -37,8 +37,7 @@ def import_lists_from_data():
     """
     """
     df = pd.read_csv(
-        # dir + 'data_pathway/scenario_results.csv',
-        dir + 'data_pathway/scenario_results_100trials.csv',
+        dir + 'data_pathway/scenario_results.csv',
         # index_col=index_col,
         header='infer'
         )
@@ -84,8 +83,7 @@ def import_stroke_data(stroke_teams_list, scenarios, highlighted_teams_input):
     stroke_team
     """
     df = pd.read_csv(
-        # dir + 'data_pathway/scenario_results.csv',
-        dir + 'data_pathway/scenario_results_100trials.csv',
+        dir + 'data_pathway/scenario_results.csv',
         # index_col=index_col,
         header='infer'
         )
@@ -272,7 +270,7 @@ def import_benchmark_data():
     all_teams_and_probs = pd.read_csv(
         dir + 'data_pathway/benchmark_codes.csv')
     # Add an index row to rank the teams:
-    all_teams_and_probs['Benchmark_rank'] = all_teams_and_probs['benchmark_rank']
+    all_teams_and_probs['Benchmark_rank'] = all_teams_and_probs['Rank']
     return all_teams_and_probs
 
 
