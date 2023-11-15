@@ -60,8 +60,7 @@ def main():
         | ✨ Cleaned | 📅 Calendar years 2019 and 2020 |
         | 🚑 Ambulance arrivals | 🏥 Grouped by stroke team |
         | 👥 Teams with over 250 admissions | 🧠 Grouped by stroke type |
-        | 💉 Teams with at least 10 thrombolysis |  |
-                
+        | 💉 Teams with at least 10 thrombolysis | |
         '''
         )
     st.markdown('')  # Breathing room
@@ -69,55 +68,89 @@ def main():
         We can see the effect of making changes to the pathway by running the same patient information multiple times with minor tweaks.
         ''')
 
-    # Method
-    col_ratio = [6, 7]
-    cols_base = st.columns(col_ratio)
-    cols_speed = st.columns(col_ratio)
-    cols_onset = st.columns(col_ratio)
-    cols_benchmark = st.columns(col_ratio)
+    tabs_method = st.tabs(['Scenarios', 'Method for one patient', 'Method for all patients'])
+    with tabs_method[0]:
+        # Method
+        cols_scenarios = st.columns(2)
 
-    image_files = [
-        'SAMueL2_model_base.png',
-        'SAMueL2_model_speed.png',
-        'SAMueL2_model_onset.png',
-        'SAMueL2_model_benchmark.png',
-    ]
-    for i, image_file in enumerate(image_files):
-        cols = [cols_base, cols_speed, cols_onset, cols_benchmark][i]
-        with cols[0]:
-            if i > 0:
-                st.markdown('###  ')  # Match the headers in other column.
-            # Draw the image with the basic model summary.
+        # Pathway descriptions from the SAMueL book:
+        # https://samuel-book.github.io/samuel-1/pathway_sim/scenario_analysis.html
+        with cols_scenarios[0]:
+            st.info('''
+                __Base__  
+                Use the recorded stroke team performance data.
+                ''')
+        with cols_scenarios[0]:
+            st.error('''
+                __Speed__  
+                Change the details of the arrival to scan times.
+
+                For the subgroup of patients who have arrived within 4 hours of onset,
+                set the _chance of having arrival to scan time under 4 hours_ to 95%.
+                For patients who are scanned within 4 hours of arrival,
+                set both _arrival to scan_ and _scan to needle_ times to 15 minutes exactly.
+                ''')
+        with cols_scenarios[1]:
+            st.error('''
+                __Onset__  
+                Change the chance of having a known onset time.
+
+                The target value is the upper quartile of the _proportions of patients with known onset time_ across all stroke teams.
+                The _chance of having a known onset time_ is set to either the target value or the original value, whichever is larger.
+                ''')
+        with cols_scenarios[1]:
+            st.info('''
+                __Benchmark__  
+                Change the chance of receiving thrombolysis.
+
+                🪝🐤🦆 For the subgroup of patients who have enough time left for thrombolysis,
+                update the _chance of receiving thrombolysis_ to the benchmark target for this stroke team.
+                The benchmark target is the thrombolysis rate of the stroke team's original patients according to the majority vote of the benchmark teams.
+                ''')
+
+    with tabs_method[1]:
+        st.markdown(
+            '''
+            ### Pathway method
+
+            Each patient goes through the following processes
+            to find their final onset-to-needle time.
+            '''
+            )
+        with st.expander('Is onset time known?'):
+            image_file = 'flowchart_onset-known.png'
             try:
                 st.image('./utilities_pathway/' + image_file)
+                path_to_images = './utilities_pathway/'
             except (FileNotFoundError, st.runtime.media_file_storage.MediaFileStorageError):
                 # Add an extra bit to the path for the combo app.
                 st.image('./streamlit_pathway_improvement/' +
                         'utilities_pathway/' + image_file)
+                path_to_images = './streamlit_pathway_improvement/utilities_pathway/'
+        with st.expander('Calculate onset-to-arrival time'):
+            image_file = 'flowchart_onset-to-arrival.png'
+            st.image(f'{path_to_images}/{image_file}')
+        with st.expander('Calculate arrival-to-scan time'):
+            image_file = 'flowchart_arrival-to-scan.png'
+            st.image(f'{path_to_images}/{image_file}')
+        with st.expander('Is there enough time for treatment?'):
+            image_file = 'flowchart_onset-to-scan.png'
+            st.image(f'{path_to_images}/{image_file}')
+        with st.expander('Is this patient treated?'):
+            image_file = 'flowchart_treated.png'
+            st.image(f'{path_to_images}/{image_file}')
+        with st.expander('Calculate scan-to-needle time'):
+            image_file = 'flowchart_scan-to-needle.png'
+            st.image(f'{path_to_images}/{image_file}')
+        st.markdown(
+            '''
+            The final treatment time is the sum of the onset-to-arrival,
+            arrival-to-scan, and scan-to-needle times.
+            ''')
 
+    with tabs_method[2]:
+        st.write('Simulato potato many times over')
 
-    # Pathway descriptions from the SAMueL book:
-    # https://samuel-book.github.io/samuel-1/pathway_sim/scenario_analysis.html
-    with cols_base[1]:
-        st.markdown('### Base')
-        st.markdown('''
-            Uses the hospitals' recorded pathway statistics in SSNAP (same as validation notebook)
-            ''')
-    with cols_speed[1]:
-        st.markdown('### Speed')
-        st.markdown('''
-            Sets 95\% of patients having a scan within 4 hours of arrival, and all patients have 15 minutes arrival to scan and 15 minutes scan to needle.
-            ''')
-    with cols_onset[1]:
-        st.markdown('### Onset')
-        st.markdown('''
-            Sets the proportion of patients with a known onset time of stroke to the national upper quartile if currently less than the national upper quartile (leave any greater than the upper national quartile at their current level).
-            ''')
-    with cols_benchmark[1]:
-        st.markdown('### Benchmark')
-        st.markdown('''
-            The benchmark thrombolysis rate takes the likelihood to give thrombolysis for patients scanned within 4 hours of onset from the majority vote of the 30 hospitals with the highest predicted thrombolysis use in a standard 10k cohort set of patients. These are from Random Forests models.
-            ''')
     st.markdown('-' * 50)
 
 
@@ -312,8 +345,9 @@ def main():
     st.markdown(
         '''
         This table contains the data shown here for all teams
-        and all scenarios. The complete data is available
-        from the download button below.
+        and all scenarios. The complete data
+        including standard deviation and confidence intervals
+        is available from the download button below.
         '''
         )
     show_data_for_all(df)
