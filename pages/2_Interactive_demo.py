@@ -51,6 +51,16 @@ def main():
 
     # Title:
     st.markdown('# :stopwatch: Pathway improvement')
+    st.markdown(
+        '''
+        We can simulate various pathways
+        to see the effect on thrombolysis rate and additional good outcomes.
+
+        A patient has an additional good outcome if they were thrombolysed and
+        had a post-stroke modified Rankin Scale (mRS) of 0 or 1,
+        and without thrombolysis their mRS would have been higher than 1.
+        ''')
+    # st.markdown('')  # Breathing room
     st.markdown('We use the data set __SSNAP Subset 📈 HP1__ (~119,000 patients) which has the following properties:')
     st.markdown(
         '''
@@ -63,12 +73,13 @@ def main():
         | 💉 Teams with at least 10 thrombolysis | |
         '''
         )
-    st.markdown('')  # Breathing room
-    st.markdown('''
-        We can see the effect of making changes to the pathway by running the same patient information multiple times with minor tweaks.
-        ''')
 
-    tabs_method = st.tabs(['Scenarios', 'Method for one patient', 'Method for all patients'])
+    tabs_method = st.tabs([
+        'Scenarios',
+        'Pathway method',
+        'Outcome measure',
+        'Simulating many patients'
+        ])
     with tabs_method[0]:
         # Method
         cols_scenarios = st.columns(2)
@@ -111,10 +122,10 @@ def main():
     with tabs_method[1]:
         st.markdown(
             '''
-            ### Pathway method
-
             Each patient goes through the following processes
-            to find their final onset-to-needle time.
+            to find their final onset-to-needle time.  
+            The actual numbers used in the checks
+            _"Is the number smaller than... ?"_ vary by stroke team.
             '''
             )
         with st.expander('Is onset time known?'):
@@ -137,9 +148,19 @@ def main():
             image_file = 'flowchart_onset-to-scan.png'
             st.image(f'{path_to_images}/{image_file}')
         with st.expander('Is this patient treated?'):
+            st.markdown(
+                '''
+                This step is carried out only for patients who have
+                enough time left for treatment.
+                ''')
             image_file = 'flowchart_treated.png'
             st.image(f'{path_to_images}/{image_file}')
         with st.expander('Calculate scan-to-needle time'):
+            st.markdown(
+                '''
+                This step is carried out only for patients who
+                receive treatment.
+                ''')
             image_file = 'flowchart_scan-to-needle.png'
             st.image(f'{path_to_images}/{image_file}')
         st.markdown(
@@ -149,7 +170,72 @@ def main():
             ''')
 
     with tabs_method[2]:
-        st.write('Simulato potato many times over')
+        st.markdown(
+            '''
+            We calculate the mRS distribution at any treatment time
+            using the _"stroke-outcome"_ model.
+            ''',
+            help='''More details are available at [this link](
+            https://samuel-book.github.io/samuel-2/outcome_modelling/intro.html
+            ).'''
+        )
+        st.markdown(
+            '''
+            This image shows results for Patient "A" who
+            had an nLVO and was treated two hours after stroke onset.
+            '''
+        )
+        image_file = 'good_outcome_example.png'
+        st.image(f'{path_to_images}/{image_file}')
+        st.markdown(
+            '''
+            The patient was randomly assigned a fixed probability of 0.55.
+            The horizontal line at probability=0.55 marks which mRS bin
+            the patient falls into in any mRS distribution.
+
+            + The treated mRS is 1.
+              + At time 2 hours the horizontal line is in the green bin.
+            + The no-treatment mRS is 2.
+              + In the "No treatment" distribution the horizontal line
+                is in the red bin.
+
+            The treatment has changed the expected outcome
+            from "bad" (mRS=2 or higher) to "good" (mRS=1 or lower),
+            so this patient counts towards "additional good outcomes".
+            '''
+        )
+
+    with tabs_method[3]:
+        st.markdown(
+            '''
+            Each stroke team has a different set of patient statistics.
+            These include proportions, for example how many patients
+            have known onset times, and distributions, for example
+            the expected values of arrival-to-scan times.
+
+            We calculate the results for a stroke team by
+            simulating many cohorts of patients attending the team.
+            We use one cohort per year and the number of patients in
+            a cohort is the same as the average number of admissions
+            to the stroke team in a year.
+            The proportions of patients who have LVOs and nLVOs are
+            also drawn from the average hospital data.
+
+            The random elements in the simulation include whether a patient
+            meets certain criteria, for example whether the onset time
+            is known, and the specific timings chosen for a patient,
+            which are usually drawn from a distribution of times.
+            This means that two cohorts will contain different data.
+
+            The pre-stroke mRS scores for the patients are generated by
+            randomly selecting a "fixed probability" for each patient.
+            The method from the "Outcome measure" tab shows how this is
+            converted to post-stroke mRS scores.
+
+            The simulations run for 100 years per team and the results
+            below are the average results across the 100 trials.
+            '''
+        )
 
     st.markdown('-' * 50)
 
